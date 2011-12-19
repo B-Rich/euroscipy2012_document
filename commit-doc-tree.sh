@@ -27,13 +27,17 @@ if [ $(git rev-parse gh-pages) != $(git rev-parse $(git config  branch.gh-pages.
     exit 4
 fi
 
-
 # get the 'git describe' output
-git_describe=$( git describe)
+description=$( git describe --tags &> /dev/null)
+if [ -z $description ] ; then
+    # no tags at all could be found, use the abbreviated sha
+    sha=$( git rev-parse HEAD )
+    description=${sha:0:7}
+fi
 
 # make the documentation, hope it doesn't fail
 
-echo "Generating html doc from $git_describe"
+echo "Generating html doc from $description"
 make clean
 if ! make html ; then
     echo "Fatal: 'make'ing the docs failed cannot commit!"
@@ -53,7 +57,7 @@ git add -f $docdirectory
 tree=$(git write-tree --prefix=$docdirectory)
 
 # we’ll have a commit
-commit=$(echo "DOC: Sphinx generated doc from $git_describe" | git commit-tree $tree -p gh-pages)
+commit=$(echo "DOC: Sphinx generated doc from $description" | git commit-tree $tree -p gh-pages)
 
 # move the branch to the commit we made, i.e. one up
 git update-ref refs/heads/gh-pages $commit
