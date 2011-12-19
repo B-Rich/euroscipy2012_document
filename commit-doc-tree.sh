@@ -38,7 +38,6 @@ make clean
 if ! make html ; then
     echo "Fatal: 'make'ing the docs failed cannot commit!"
     exit 5
-    cd ..
 fi
 
 docdirectory="_build/html/"
