@@ -1,8 +1,9 @@
 #!/bin/zsh
 
 # Script to automatically generate documentation and commit this to the gh-pages
-# branch. See http://debilski.github.com/pelita/development.rst for more
-# information.
+# branch. Originally taken from
+# http://debilski.github.com/pelita/development.rst and adapted for the
+# EuroScipy2012 document.
 
 # check, if index is empty
 if ! git diff-index --cached --quiet --ignore-submodules HEAD ; then
@@ -31,17 +32,16 @@ fi
 git_describe=$( git describe)
 
 # make the documentation, hope it doesn't fail
-echo "Generating doc from $git_describe"
-cd doc
+
+echo "Generating html doc from $git_describe"
 make clean
-if ! make ; then
+if ! make html ; then
     echo "Fatal: 'make'ing the docs failed cannot commit!"
     exit 5
     cd ..
 fi
-cd ..
 
-docdirectory=doc/build/html/
+docdirectory="_build/html/"
 
 # Add a .nojekyll file
 # This prevents the GitHub jekyll website generator from running
@@ -51,7 +51,7 @@ touch $docdirectory".nojekyll"
 git add -f $docdirectory
 
 # writing a tree using the current index
-tree=$(git write-tree --prefix=doc/build/html/)
+tree=$(git write-tree --prefix=$docdirectory)
 
 # we’ll have a commit
 commit=$(echo "DOC: Sphinx generated doc from $git_describe" | git commit-tree $tree -p gh-pages)
