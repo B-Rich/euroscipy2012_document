@@ -32,7 +32,7 @@ description=$( git describe --tags &> /dev/null)
 if [ -z $description ] ; then
     # no tags at all could be found, use the abbreviated sha
     sha=$( git rev-parse HEAD )
-    description=${sha[0,7]}
+    description=$( expr substr $sha 1 7 )
 fi
 
 # make the documentation, hope it doesn't fail
